@@ -25,26 +25,29 @@ export default function Home() {
     setInput(e.target.value);
   }
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (!input.trim()) return;
-
-    const newMessage: Message = { id: messages.length + 1, role: 'user', content: input };
-    setMessages((prev) => [...prev, newMessage]);
-    setInput('');
-
     setIsTyping(true);
-
-    setTimeout(() => {
-      const aiResponse: Message = {
-        id: messages.length + 2,
-        role: 'ai',
-        content: 'Hello! This is a placeholder AI response.',
-      }
-      setMessages((prev) => [...prev, aiResponse]);
+  
+    const userMessage: Message = { id: Date.now(), role: 'user', content: input };
+    setMessages((prev) => [...prev, userMessage]);
+  
+    try {
+      const response = await fetch('/api/messages', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ role: 'user', content: input }),
+      });
+  
+      const data: Message = await response.json(); // Explicitly type the response
+  
+      setMessages((prev) => [...prev, { ...data, role: data.role as 'user' | 'ai' }]);
+    } catch (error) {
+      console.error('Error:', error);
+    } finally {
       setIsTyping(false);
-    }, 1500);
-  }
+    }
+  };  
 
   return (
     <main className={styles.main}>
@@ -70,7 +73,7 @@ export default function Home() {
           )}
           <div ref={messagesEndRef} />
         </div>
-        <form onSubmit={handleSubmit} className={styles.inputArea}>
+        <form onSubmit={onSubmit} className={styles.inputArea}>
           <input
             className={styles.input}
             value={input}
