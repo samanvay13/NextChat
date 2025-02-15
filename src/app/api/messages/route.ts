@@ -1,7 +1,5 @@
-import { PrismaClient } from '@prisma/client';
+import { prisma } from '../../../../lib/prisma';
 import { NextResponse } from 'next/server';
-
-const prisma = new PrismaClient();
 
 export async function POST(req: Request) {
   try {
@@ -24,6 +22,10 @@ export async function POST(req: Request) {
     return NextResponse.json(lastMessage);
   } catch (error) {
     console.error('Error saving message:', error);
-    return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
+
+    return NextResponse.json(
+      { error: error instanceof Error ? error.message : 'Internal Server Error' },
+      { status: 500 }
+    );
   }
 }

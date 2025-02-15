@@ -39,7 +39,7 @@ export default function Home() {
         body: JSON.stringify({ role: 'user', content: input }),
       });
   
-      const data: Message = await response.json(); // Explicitly type the response
+      const data: Message = await response.json();
   
       setMessages((prev) => [...prev, { ...data, role: data.role as 'user' | 'ai' }]);
     } catch (error) {
