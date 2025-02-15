@@ -1,39 +1,39 @@
-'use client'
+'use client';
 
-import { useState, useRef, useEffect } from 'react'
-import styles from './page.module.css'
+import { useState, useRef, useEffect } from 'react';
+import styles from './page.module.css';
 
 type Message = {
-  id: number
-  role: 'user' | 'ai' // 👈 Explicitly define the type
-  content: string
+  id: number;
+  role: 'user' | 'ai';
+  content: string;
 }
 
 export default function Home() {
-  const [messages, setMessages] = useState<Message[]>([])
-  const [input, setInput] = useState('')
-  const [isTyping, setIsTyping] = useState(false)
-  const messagesEndRef = useRef<HTMLDivElement>(null)
+  const [messages, setMessages] = useState<Message[]>([]);
+  const [input, setInput] = useState('');
+  const [isTyping, setIsTyping] = useState(false);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }
 
-  useEffect(scrollToBottom, [messages])
+  useEffect(scrollToBottom, [messages]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setInput(e.target.value)
+    setInput(e.target.value);
   }
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault()
-    if (!input.trim()) return
+    e.preventDefault();
+    if (!input.trim()) return;
 
-    const newMessage: Message = { id: messages.length + 1, role: 'user', content: input }
-    setMessages((prev) => [...prev, newMessage])
-    setInput('')
+    const newMessage: Message = { id: messages.length + 1, role: 'user', content: input };
+    setMessages((prev) => [...prev, newMessage]);
+    setInput('');
 
-    setIsTyping(true)
+    setIsTyping(true);
 
     setTimeout(() => {
       const aiResponse: Message = {
@@ -41,9 +41,9 @@ export default function Home() {
         role: 'ai',
         content: 'Hello! This is a placeholder AI response.',
       }
-      setMessages((prev) => [...prev, aiResponse])
-      setIsTyping(false)
-    }, 1500)
+      setMessages((prev) => [...prev, aiResponse]);
+      setIsTyping(false);
+    }, 1500);
   }
 
   return (
