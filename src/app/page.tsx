@@ -1,13 +1,15 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { ChatHistoryItem } from './types';
-import { useTheme } from './hooks/useTheme';
-import { AnimatedBackground } from './components/AnimatedBackground';
-import { ProfileDropdown } from './components/ProfileDropdown';
-import { Sidebar } from './components/SideBar';
-import { WelcomeSection } from './components/WelcomeSection';
-import { GlobalStyles } from './components/GlobalStyles';
+import { useTheme } from '@/hooks/useTheme';
+import { AnimatedBackground } from '@/components/ui/AnimatedBackground';
+import { UserProfile } from '@/components/layout/UserProfile';
+import { Sidebar } from '@/components/ui/SideBar';
+import { WelcomeSection } from '@/components/ui/WelcomeSection';
+import { GlobalStyles } from '@/components/ui/GlobalStyles';
+import { useAuthContext } from '@/components/auth/AuthProvider';
+import { useRouter } from 'next/navigation';
 
 export default function Home() {
   const [message, setMessage] = useState('');
@@ -19,6 +21,14 @@ export default function Home() {
   ]);
 
   const { isDarkMode, toggleTheme, themeClasses } = useTheme();
+  const { user, loading } = useAuthContext();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (!loading && !user) {
+      router.push('/auth/login');
+    }
+  }, [user, loading, router]);
 
   const handleSendMessage = () => {
     if (message.trim()) {
@@ -34,11 +44,33 @@ export default function Home() {
     }
   };
 
+  if (loading) {
+    return (
+      <div className={`min-h-screen flex items-center justify-center ${themeClasses.bg}`}>
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
+          <p className={`mt-4 ${themeClasses.textMuted}`}>Loading...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!user) {
+    return (
+      <div className={`min-h-screen flex items-center justify-center ${themeClasses.bg}`}>
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
+          <p className={`mt-4 ${themeClasses.textMuted}`}>Redirecting...</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className={`flex h-screen ${themeClasses.bg} relative overflow-hidden`}>
       <AnimatedBackground isDarkMode={isDarkMode} />
       
-      <ProfileDropdown themeClasses={themeClasses} isDarkMode={isDarkMode} />
+      <UserProfile themeClasses={themeClasses} isDarkMode={isDarkMode} />
       
       <Sidebar 
         themeClasses={themeClasses} 

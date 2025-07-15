@@ -1,6 +1,6 @@
 import React, { useRef } from 'react';
 import { PaperClipIcon, ArrowUpIcon } from '@heroicons/react/24/outline';
-import { ThemeClasses } from '../types';
+import { ThemeClasses } from '@/app/types';
 
 interface ChatInputProps {
   message: string;

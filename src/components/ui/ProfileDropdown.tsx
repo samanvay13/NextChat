@@ -1,7 +1,7 @@
 import React, { useRef, useState } from 'react';
 import { ChevronDownIcon, UserIcon } from '@heroicons/react/24/outline';
-import { ThemeClasses } from '../types';
-import { useOutsideClick } from '../hooks/useOutsideClick';
+import { ThemeClasses } from '@/app/types';
+import { useOutsideClick } from '@/hooks/useOutsideClick';
 
 interface ProfileDropdownProps {
   themeClasses: ThemeClasses;
@@ -36,7 +36,7 @@ export const ProfileDropdown: React.FC<ProfileDropdownProps> = ({ themeClasses, 
             <div className={`text-sm font-medium ${themeClasses.text}`}>John Doe</div>
             <div className={`text-xs ${themeClasses.textMuted}`}>john@example.com</div>
           </div>
-          <button className={`w-full text-left px-3 py-2 text-sm text-red-500 hover:bg-red-50 ${isDarkMode ? 'hover:bg-red-900/20' : ''} rounded-b-lg cursor-pointer transition-colors`}>
+          <button className={`w-full text-center px-3 py-2 text-sm text-red-500 hover:bg-red-50 ${isDarkMode ? 'hover:bg-red-900/20' : ''} rounded-b-lg cursor-pointer transition-colors`}>
             Logout
           </button>
         </div>

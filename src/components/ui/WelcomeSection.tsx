@@ -1,5 +1,5 @@
 import React from 'react';
-import { ThemeClasses } from '../types';
+import { ThemeClasses } from '@/app/types'; 
 import { ChatInput } from './ChatInput';
 
 interface WelcomeSectionProps {

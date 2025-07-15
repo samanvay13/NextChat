@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { PlusIcon, SunIcon, MoonIcon } from '@heroicons/react/24/outline';
-import { ThemeClasses, ChatHistoryItem } from '../types';
+import { ThemeClasses, ChatHistoryItem } from '@/app/types';
 
 interface SidebarProps {
   themeClasses: ThemeClasses;

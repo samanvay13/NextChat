@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
-import { Dot } from '../types';
+import { Dot } from '../app/types';
 
 export const useAnimatedBackground = (isDarkMode: boolean) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);

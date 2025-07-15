@@ -1,5 +1,5 @@
 import React from 'react';
-import { useAnimatedBackground } from '../hooks/useAnimateBackground';
+import { useAnimatedBackground } from '@/hooks/useAnimateBackground';
 
 interface AnimatedBackgroundProps {
   isDarkMode: boolean;
