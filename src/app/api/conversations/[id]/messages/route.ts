@@ -3,10 +3,9 @@ import { ChatService } from '../../../../../lib/chat-service';
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    // Get user from middleware headers
     const userId = request.headers.get('x-user-id');
 
     if (!userId) {
@@ -16,7 +15,7 @@ export async function GET(
       }, { status: 401 });
     }
 
-    const conversationId = params.id;
+    const { id: conversationId } = await params;
     const messages = await ChatService.getConversationMessages(conversationId, userId);
 
     return NextResponse.json({

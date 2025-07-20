@@ -17,7 +17,6 @@ export default function ResetPasswordPage() {
   
   const { isDarkMode, themeClasses } = useTheme();
   const router = useRouter();
-  const searchParams = useSearchParams();
 
   useEffect(() => {
     const checkSession = async () => {

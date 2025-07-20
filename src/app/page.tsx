@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { useTheme } from '@/hooks/useTheme';
 import { AnimatedBackground } from '@/components/ui/AnimatedBackground';
 import { UserProfile } from '@/components/layout/UserProfile';
-import { Sidebar } from '@/components/ui/Sidebar';
+import { Sidebar } from '@/components/ui/Sidebar'; 
 import { ChatWindow } from '@/components/chat/ChatWindow';
 import { GlobalStyles } from '@/components/ui/GlobalStyles';
 import { useAuthContext } from '@/components/auth/AuthProvider';
