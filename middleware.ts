@@ -27,33 +27,51 @@ export async function middleware(request: NextRequest) {
     }
   )
 
-  try {
-    const {
-      data: { user },
-    } = await supabase.auth.getUser()
-
-    const isAuthPage = request.nextUrl.pathname.startsWith('/auth')
-    const isHomePage = request.nextUrl.pathname === '/'
-    const isCallback = request.nextUrl.pathname === '/auth/callback'
-    const isResetPassword = request.nextUrl.pathname === '/auth/reset-password'
-
-    if (isCallback) {
-      return supabaseResponse
-    }
-
-    if (isResetPassword) {
-      if (!user) {
-        const url = request.nextUrl.clone()
-        url.pathname = '/auth/login'
-        return NextResponse.redirect(url)
+  if (request.nextUrl.pathname.startsWith('/api/')) {
+    try {
+      const { data: { user } } = await supabase.auth.getUser()
+      
+      if (user) {
+        const requestHeaders = new Headers(request.headers)
+        requestHeaders.set('x-user-id', user.id)
+        requestHeaders.set('x-user-email', user.email || '')
+        
+        supabaseResponse = NextResponse.next({
+          request: {
+            headers: requestHeaders,
+          },
+        })
       }
-      return supabaseResponse
+    } catch (error) {
+      console.error('Middleware auth error:', error)
     }
+  }
 
+  const isAuthPage = request.nextUrl.pathname.startsWith('/auth')
+  const isHomePage = request.nextUrl.pathname === '/'
+  const isCallback = request.nextUrl.pathname === '/auth/callback'
+  const isResetPassword = request.nextUrl.pathname === '/auth/reset-password'
+
+  if (isCallback) {
+    return supabaseResponse
+  }
+
+  if (isResetPassword) {
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) {
+      const url = request.nextUrl.clone()
+      url.pathname = '/auth/login'
+      return NextResponse.redirect(url)
+    }
+    return supabaseResponse
+  }
+
+  if (!request.nextUrl.pathname.startsWith('/api/')) {
+    const { data: { user } } = await supabase.auth.getUser()
+    
     if (!user && isHomePage) {
       const url = request.nextUrl.clone()
       url.pathname = '/auth/login'
-      url.searchParams.set('redirected', 'true')
       return NextResponse.redirect(url)
     }
 
@@ -62,17 +80,9 @@ export async function middleware(request: NextRequest) {
       url.pathname = '/'
       return NextResponse.redirect(url)
     }
-
-    return supabaseResponse
-  } catch (error) {
-    console.error('Middleware auth error:', error)
-    if (request.nextUrl.pathname === '/') {
-      const url = request.nextUrl.clone()
-      url.pathname = '/auth/login'
-      return NextResponse.redirect(url)
-    }
-    return supabaseResponse
   }
+
+  return supabaseResponse
 }
 
 export const config = {
