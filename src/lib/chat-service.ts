@@ -29,7 +29,7 @@ export class ChatService {
       .single();
 
     if (error) {
-      if (error.code === 'PGRST116') return null; // Not found
+      if (error.code === 'PGRST116') return null;
       throw new Error(`Failed to get conversation: ${error.message}`);
     }
 
@@ -74,7 +74,6 @@ export class ChatService {
       throw new Error(`Failed to add message: ${error.message}`);
     }
 
-    // Update conversation's last_message_at
     await supabaseAdmin
       .from('conversations')
       .update({ last_message_at: new Date().toISOString() })

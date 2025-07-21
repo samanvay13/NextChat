@@ -1,9 +1,7 @@
-// lib/supabase-server.ts - FIXED IMPORTS
 import { createServerClient } from '@supabase/ssr'
-import { createClient } from '@supabase/supabase-js'  // Import from supabase-js, not ssr
+import { createClient } from '@supabase/supabase-js'
 import { cookies } from 'next/headers'
 
-// For API routes that need auth (using middleware instead)
 export async function createSupabaseServerClient() {
   const cookieStore = await cookies()
 
@@ -21,7 +19,7 @@ export async function createSupabaseServerClient() {
               cookieStore.set(name, value, options)
             })
           } catch (error) {
-            // Expected in some server contexts
+            console.error('Error setting cookies:', error);
           }
         },
       },
@@ -29,7 +27,6 @@ export async function createSupabaseServerClient() {
   )
 }
 
-// Admin client for database operations (uses service role key)
 export const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
   process.env.SUPABASE_SERVICE_ROLE_KEY!,
@@ -41,5 +38,4 @@ export const supabaseAdmin = createClient(
   }
 )
 
-// Alternative name for compatibility
 export const supabaseServer = supabaseAdmin

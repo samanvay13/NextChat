@@ -27,6 +27,10 @@ export const useChat = () => {
         credentials: 'include',
       });
 
+      if (response.status === 401) {
+        throw new Error('Please log in again');
+      }
+
       const result: ChatResponse = await response.json();
 
       if (!result.success) {
@@ -46,7 +50,14 @@ export const useChat = () => {
 
   const getConversations = useCallback(async (): Promise<Conversation[]> => {
     try {
-      const response = await fetch('/api/conversations');
+      const response = await fetch('/api/conversations', {
+        credentials: 'include',
+      });
+      
+      if (response.status === 401) {
+        throw new Error('Please log in again');
+      }
+
       const result = await response.json();
 
       if (!result.success) {
@@ -63,7 +74,14 @@ export const useChat = () => {
 
   const getMessages = useCallback(async (conversationId: string): Promise<Message[]> => {
     try {
-      const response = await fetch(`/api/conversations/${conversationId}/messages`);
+      const response = await fetch(`/api/conversations/${conversationId}/messages`, {
+        credentials: 'include',
+      });
+      
+      if (response.status === 401) {
+        throw new Error('Please log in again');
+      }
+
       const result = await response.json();
 
       if (!result.success) {

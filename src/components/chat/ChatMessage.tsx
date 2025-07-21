@@ -48,7 +48,7 @@ export const ChatMessage: React.FC<ChatMessageProps> = ({ message, themeClasses,
       </div>
 
       {isUser && (
-        <div className={`w-8 h-8 rounded-full flex items-center justify-center ${themeClasses.profileBg} ${themeClasses.border} border flex-shrink-0`}>
+        <div className={`w-8 h-8 rounded-full flex items-center justify-center bg-blue-400 border-cyan-400 border flex-shrink-0`}>
           <UserIcon className="w-5 h-5" />
         </div>
       )}

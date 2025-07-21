@@ -50,7 +50,22 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({
   };
 
   const handleSendMessage = async (messageContent: string, imageFile?: File) => {
+    if (!messageContent.trim() && !imageFile) return;
+
     try {
+      const tempUserMessage: Message = {
+        id: 'temp-user-' + Date.now(),
+        conversation_id: conversation?.id || '',
+        user_id: 'temp',
+        content: messageContent,
+        role: 'user',
+        image_url: imageFile ? URL.createObjectURL(imageFile) : undefined,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
+      };
+
+      setMessages(prev => [...prev, tempUserMessage]);
+
       const result = await sendMessage({
         message: messageContent,
         conversationId: conversation?.id,
@@ -58,35 +73,30 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({
       });
 
       if (result.success && result.message) {
-        const userMessage: Message = {
-          id: 'temp-user-' + Date.now(),
-          conversation_id: result.message.conversation_id,
-          user_id: result.message.user_id,
-          content: messageContent,
-          role: 'user',
-          image_url: imageFile ? URL.createObjectURL(imageFile) : undefined,
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString()
-        };
-
-        setMessages(prev => [...prev, userMessage, result.message!]);
+        setMessages(prev => {
+          const withoutTemp = prev.filter(msg => msg.id !== tempUserMessage.id);
+          return [...withoutTemp, result.message!];
+        });
 
         if (!conversation && result.conversation && onNewConversation) {
           onNewConversation(result.conversation);
         }
+      } else {
+        setMessages(prev => prev.filter(msg => msg.id !== tempUserMessage.id));
       }
     } catch (err) {
       console.error('Failed to send message:', err);
+      setMessages(prev => prev.filter(msg => msg.id.startsWith('temp-')));
     }
   };
 
   if (!conversation) {
     return (
-      <div className="flex-1 flex flex-col">
-        <div className="flex-1 flex items-center justify-center p-8">
+      <div className="flex-1 flex flex-col h-full">
+        <div className="flex-1 flex items-center justify-center p-8 overflow-y-auto">
           <div className="max-w-2xl text-center">
             <h1 className={`text-4xl font-bold ${themeClasses.text} mb-4`}>
-              AI Image Analysis
+              NextChat
             </h1>
             <p className={`text-lg ${themeClasses.textSecondary} mb-8`}>
               Upload images and ask questions about their content. I can analyze photos, diagrams, 
@@ -112,34 +122,36 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({
           </div>
         </div>
 
-        <ChatInput
-          onSendMessage={handleSendMessage}
-          themeClasses={themeClasses}
-          isDarkMode={isDarkMode}
-          disabled={loading}
-        />
+        <div className="flex-shrink-0">
+          <ChatInput
+            onSendMessage={handleSendMessage}
+            themeClasses={themeClasses}
+            isDarkMode={isDarkMode}
+            disabled={loading}
+          />
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="flex-1 flex flex-col">
-      <div className={`p-4 border-b ${themeClasses.border} ${themeClasses.cardBg}`}>
-        <h2 className={`text-lg font-semibold ${themeClasses.text} truncate`}>
+    <div className="flex-1 flex flex-col h-full max-h-screen">
+      <div className={`flex-shrink-0 p-[24px] border-b ${themeClasses.border} ${themeClasses.cardBg}`}>
+        <h2 className={`text-lg text-center font-semibold ${themeClasses.text} truncate`}>
           {conversation.title}
         </h2>
-        <p className={`text-sm ${themeClasses.textMuted}`}>
+        <p className={`text-sm text-center ${themeClasses.textMuted}`}>
           Started {new Date(conversation.created_at).toLocaleDateString()}
         </p>
       </div>
 
-      <div className="flex-1 overflow-y-auto">
+      <div className="flex-1 overflow-y-auto min-h-0">
         {messages.length === 0 ? (
           <div className="flex items-center justify-center h-full">
             <p className={`${themeClasses.textMuted}`}>No messages yet. Start the conversation!</p>
           </div>
         ) : (
-          <div className="space-y-4">
+          <div className="pb-4">
             {messages.map((message) => (
               <ChatMessage
                 key={message.id}
@@ -164,17 +176,19 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({
       </div>
 
       {error && (
-        <div className="p-4 bg-red-50 border-t border-red-200">
+        <div className="flex-shrink-0 p-4 bg-red-50 border-t border-red-200">
           <p className="text-sm text-red-600">{error}</p>
         </div>
       )}
 
-      <ChatInput
-        onSendMessage={handleSendMessage}
-        themeClasses={themeClasses}
-        isDarkMode={isDarkMode}
-        disabled={loading}
-      />
+      <div className="flex-shrink-0">
+        <ChatInput
+          onSendMessage={handleSendMessage}
+          themeClasses={themeClasses}
+          isDarkMode={isDarkMode}
+          disabled={loading}
+        />
+      </div>
     </div>
   );
 };

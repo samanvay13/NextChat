@@ -61,7 +61,7 @@ export default function Home() {
         onConversationSelect={setCurrentConversation}
       />
 
-      <div className="flex-1 flex flex-col relative z-10">
+      <div className="flex-1 flex flex-col relative z-10 backdrop-blur-xs">
         <ChatWindow
           conversation={currentConversation}
           onNewConversation={handleNewConversation}

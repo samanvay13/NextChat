@@ -27,48 +27,32 @@ export async function middleware(request: NextRequest) {
     }
   )
 
-  if (request.nextUrl.pathname.startsWith('/api/')) {
-    try {
-      const { data: { user } } = await supabase.auth.getUser()
-      
-      if (user) {
-        const requestHeaders = new Headers(request.headers)
-        requestHeaders.set('x-user-id', user.id)
-        requestHeaders.set('x-user-email', user.email || '')
-        
-        supabaseResponse = NextResponse.next({
-          request: {
-            headers: requestHeaders,
-          },
-        })
-      }
-    } catch (error) {
-      console.error('Middleware auth error:', error)
-    }
-  }
-
   const isAuthPage = request.nextUrl.pathname.startsWith('/auth')
   const isHomePage = request.nextUrl.pathname === '/'
+  const isApiRoute = request.nextUrl.pathname.startsWith('/api')
   const isCallback = request.nextUrl.pathname === '/auth/callback'
   const isResetPassword = request.nextUrl.pathname === '/auth/reset-password'
 
-  if (isCallback) {
+  if (isApiRoute) {
     return supabaseResponse
   }
 
-  if (isResetPassword) {
+  try {
     const { data: { user } } = await supabase.auth.getUser()
-    if (!user) {
-      const url = request.nextUrl.clone()
-      url.pathname = '/auth/login'
-      return NextResponse.redirect(url)
+
+    if (isCallback) {
+      return supabaseResponse
     }
-    return supabaseResponse
-  }
 
-  if (!request.nextUrl.pathname.startsWith('/api/')) {
-    const { data: { user } } = await supabase.auth.getUser()
-    
+    if (isResetPassword) {
+      if (!user) {
+        const url = request.nextUrl.clone()
+        url.pathname = '/auth/login'
+        return NextResponse.redirect(url)
+      }
+      return supabaseResponse
+    }
+
     if (!user && isHomePage) {
       const url = request.nextUrl.clone()
       url.pathname = '/auth/login'
@@ -80,6 +64,9 @@ export async function middleware(request: NextRequest) {
       url.pathname = '/'
       return NextResponse.redirect(url)
     }
+
+  } catch (error) {
+    console.error('Middleware auth error:', error)
   }
 
   return supabaseResponse

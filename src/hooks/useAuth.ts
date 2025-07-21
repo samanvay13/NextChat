@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { User, Session } from '@supabase/supabase-js';
 import { useRouter } from 'next/navigation';
-import { supabase } from '@/lib/supabase';
+import { supabase } from '../lib/supabase';
 
 export const useAuth = () => {
   const [user, setUser] = useState<User | null>(null);
@@ -17,6 +17,12 @@ export const useAuth = () => {
         const { data: { session }, error } = await supabase.auth.getSession();
         
         if (mounted) {
+          console.log('Auth session loaded:', { 
+            user: session?.user?.email, 
+            hasSession: !!session,
+            error: error?.message 
+          });
+          
           if (error) {
             console.error('Error getting session:', error);
             setSession(null);
@@ -50,6 +56,9 @@ export const useAuth = () => {
           if (event === 'SIGNED_OUT') {
             router.push('/auth/login');
           }
+          if (event === 'SIGNED_IN') {
+            console.log('User signed in, cookies should be set');
+          }
         }
       }
     );
@@ -65,6 +74,13 @@ export const useAuth = () => {
       email,
       password,
     });
+    
+    console.log('Sign in result:', { 
+      user: data.user?.email, 
+      session: !!data.session,
+      error: error?.message 
+    });
+    
     return { data, error };
   };
 
@@ -80,6 +96,13 @@ export const useAuth = () => {
         }
       }
     });
+    
+    console.log('Sign up result:', { 
+      user: data.user?.email, 
+      session: !!data.session,
+      error: error?.message 
+    });
+    
     return { data, error };
   };
 
@@ -94,6 +117,7 @@ export const useAuth = () => {
   };
 
   const signOut = async () => {
+    console.log('Signing out...');
     const { error } = await supabase.auth.signOut();
     if (!error) {
       setUser(null);
