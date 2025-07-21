@@ -9,7 +9,8 @@ export class ImageUploadService {
       .from('chat-images')
       .upload(fileName, file, {
         cacheControl: '3600',
-        upsert: false
+        upsert: false,
+        contentType: file.type
       });
 
     if (error) {
@@ -32,5 +33,18 @@ export class ImageUploadService {
         .from('chat-images')
         .remove([path]);
     }
+  }
+
+  static getMimeTypeFromUrl(url: string): string {
+    const extension = url.split('.').pop()?.toLowerCase();
+    const mimeTypes: { [key: string]: string } = {
+      'jpg': 'image/jpeg',
+      'jpeg': 'image/jpeg',
+      'png': 'image/png',
+      'gif': 'image/gif',
+      'webp': 'image/webp',
+      'bmp': 'image/bmp'
+    };
+    return mimeTypes[extension || ''] || 'image/jpeg';
   }
 }

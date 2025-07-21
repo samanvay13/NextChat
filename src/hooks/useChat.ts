@@ -1,5 +1,14 @@
 import { useState, useCallback } from 'react';
-import { Message, Conversation, ChatRequest, ChatResponse } from '../types/chat';
+import { Message, Conversation, ChatRequest } from '../types/chat';
+
+interface ChatResponse {
+  success: boolean;
+  message?: Message;
+  messages?: Message[];
+  conversation?: Conversation;
+  error?: string;
+  warning?: string;
+}
 
 export const useChat = () => {
   const [loading, setLoading] = useState(false);

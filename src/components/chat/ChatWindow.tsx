@@ -53,18 +53,7 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({
     if (!messageContent.trim() && !imageFile) return;
 
     try {
-      const tempUserMessage: Message = {
-        id: 'temp-user-' + Date.now(),
-        conversation_id: conversation?.id || '',
-        user_id: 'temp',
-        content: messageContent,
-        role: 'user',
-        image_url: imageFile ? URL.createObjectURL(imageFile) : undefined,
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString()
-      };
-
-      setMessages(prev => [...prev, tempUserMessage]);
+      console.log('Sending message:', { messageContent, hasImage: !!imageFile });
 
       const result = await sendMessage({
         message: messageContent,
@@ -72,21 +61,28 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({
         imageFile
       });
 
-      if (result.success && result.message) {
-        setMessages(prev => {
-          const withoutTemp = prev.filter(msg => msg.id !== tempUserMessage.id);
-          return [...withoutTemp, result.message!];
-        });
+      console.log('Send result:', result);
+
+      if (result.success) {
+        if (result.messages && Array.isArray(result.messages)) {
+          const validMessages: Message[] = result.messages.filter((msg): msg is Message => 
+            msg !== undefined && msg !== null && typeof msg === 'object' && 'id' in msg
+          );
+          if (validMessages.length > 0) {
+            setMessages(prev => [...prev, ...validMessages]);
+          }
+        } else if (result.message && typeof result.message === 'object' && 'id' in result.message) {
+          setMessages(prev => [...prev, result.message as Message]);
+        }
 
         if (!conversation && result.conversation && onNewConversation) {
           onNewConversation(result.conversation);
         }
       } else {
-        setMessages(prev => prev.filter(msg => msg.id !== tempUserMessage.id));
+        console.error('Send message failed:', result.error);
       }
     } catch (err) {
       console.error('Failed to send message:', err);
-      setMessages(prev => prev.filter(msg => msg.id.startsWith('temp-')));
     }
   };
 
@@ -96,18 +92,18 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({
         <div className="flex-1 flex items-center justify-center p-8 overflow-y-auto">
           <div className="max-w-2xl text-center">
             <h1 className={`text-4xl font-bold ${themeClasses.text} mb-4`}>
-              NextChat
+              AI Assistant
             </h1>
             <p className={`text-lg ${themeClasses.textSecondary} mb-8`}>
-              Upload images and ask questions about their content. I can analyze photos, diagrams, 
-              screenshots, and more to provide detailed insights.
+              I can help you with questions, creative projects, analysis, and more. 
+              You can also upload images for detailed analysis!
             </p>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
               {[
-                "Analyze this photo",
-                "What's in this image?", 
-                "Explain this diagram",
-                "Describe the scene"
+                "Explain quantum physics simply",
+                "Help me write a story", 
+                "Analyze this image",
+                "Answer my questions"
               ].map((prompt, index) => (
                 <button
                   key={index}
@@ -136,12 +132,12 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({
 
   return (
     <div className="flex-1 flex flex-col h-full max-h-screen">
-      <div className={`flex-shrink-0 p-[24px] border-b ${themeClasses.border} ${themeClasses.cardBg}`}>
+      <div className={`flex-shrink-0 p-[23px] border-b ${themeClasses.border} ${themeClasses.cardBg}`}>
         <h2 className={`text-lg text-center font-semibold ${themeClasses.text} truncate`}>
           {conversation.title}
         </h2>
         <p className={`text-sm text-center ${themeClasses.textMuted}`}>
-          Started {new Date(conversation.created_at).toLocaleDateString()}
+          {messages.length} messages • Started {new Date(conversation.created_at).toLocaleDateString()}
         </p>
       </div>
 
@@ -166,7 +162,7 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({
                   <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
                 </div>
                 <div className={`${themeClasses.cardBg} ${themeClasses.border} border rounded-2xl p-4`}>
-                  <p className={`${themeClasses.textMuted} text-sm`}>AI is analyzing...</p>
+                  <p className={`${themeClasses.textMuted} text-sm`}>AI is thinking...</p>
                 </div>
               </div>
             )}
